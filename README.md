@@ -1,25 +1,34 @@
-# Accessible Website
+# SnappThis
 
-Ontwerp en maak voor een opdrachtgever een component/pagina/site toegankelijk volgens WCAG richtlijnen.
+## Intro  
+SnappThis is een webapplicatie waarmee je samen met anderen foto’s kunt verzamelen rond een thema en deze terugziet in een visuele map(snappmap).  
+De opdracht was om een gebruiksvriendelijke en leuke website te ontwerpen waarmee groepen makkelijk foto’s kunnen delen en bekijken.  
 
-De instructie van deze leertaak staat in [INSTRUCTIONS](https://github.com/fdnd-task/all-human-accessible-website/blob/main/docs/INSTRUCTIONS.md)
+👉 Live versie: [https://thomasseisveld.github.io/snappthis/]
 
-## Inhoudsopgave
+---
 
-  * [Beschrijving](#beschrijving)
-  * [Kenmerken](#kenmerken)
-  * [Bronnen](#bronnen)
-  * [Licentie](#licentie)
+## Beschrijving  
+Met SnappThis kun je:
+- een groep aanmaken en anderen uitnodigen  
+- een onderwerp of opdracht starten  
+- foto’s uploaden en bekijken van iedereen in de groep  
+- alles terugzien in een overzichtelijke snappmap  
 
-## Beschrijving
-<!-- In de Beschrijving staat hoe je project er uit ziet, hoe het werkt en wat je er mee kan. -->
-<!-- Voeg een mooie poster visual toe 📸 -->
-<!-- Voeg een link toe naar Github Pages 🌐-->
+De focus ligt op eenvoud, samenwerking en een fijne gebruikerservaring.  
 
-## Kenmerken
-<!-- Bij Kenmerken staat welke technieken zijn gebruikt en hoe. Wat is de HTML structuur? Wat zijn de belangrijkste dingen in CSS? Wat is er met Javascript gedaan en hoe? Misschien heb je een framwork of library gebruikt? -->
+![alt text](assets/image.png)
 
-## Bronnen
+## Kenmerken  
+- Gemaakt met **HTML** en **CSS**  
+- Backend met **JAVASCRIPT 
+- **FIREBASE**  voor het opslaan van gebruikers en foto’s  
+- Responsief design (werkt goed op mobiel en desktop)  
 
-## Licentie
-This project is licensed under the terms of the [MIT license](./LICENSE).
+
+
+## Bronnen  
+- [Design Challenge](https://github.com/fdnd-agency/snappthis/wiki/Design-Challenge)  
+- Eigen onderzoek en schetsen  
+
+
