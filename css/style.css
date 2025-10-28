@@ -74,6 +74,22 @@ body {
   overflow-y: auto;
   /* transition: width 0.8s; */
 }
+/* Sidebar voor thema's in een groep */
+.themes-sidebar {
+  min-width: 160px;
+  background: #12262f;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.layout-container {
+  display: flex;
+  align-items: stretch;
+}
 .sidebar-navigation .logo {
   display: flex;
   align-items: center;
