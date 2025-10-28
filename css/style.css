@@ -544,3 +544,45 @@ button:active {
   .main-section { order: 3; padding: 12px; }
   .gallery-section { grid-template-columns: 1fr; }
 }
+
+/* Mobile bottom navigation - visible only on small screens */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60px;
+    background: #ffffff;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 300;
+    box-shadow: 0 -4px 18px rgba(8, 27, 51, 0.08);
+  }
+
+  .mobile-bottom-nav .mobile-nav-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #172F3B;
+    cursor: pointer;
+    padding: 6px;
+  }
+
+  /* ensure main content has bottom padding so content isn't hidden */
+  .main-section { padding-bottom: 92px; }
+}
+
+/* hide mobile nav on larger screens */
+@media (min-width: 769px) {
+  #mobileBottomNav { display: none; }
+}
+
+/* accessible hidden text */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
