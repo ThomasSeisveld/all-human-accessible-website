@@ -35,19 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Groups now contain multiple themes
   const yourGroups = [
-    { name: 'Nature', id: 'nature', likes: 5, themes: [{ id: 'nature_forest', name: 'Forest' }, { id: 'nature_water', name: 'Water' }] },
-    { name: 'City', id: 'city', likes: 5, themes: [{ id: 'city_modern', name: 'Modern' }, { id: 'city_old', name: 'Old city' }] },
-    { name: 'Sport', id: 'sport', likes: 5, themes: [{ id: 'sport_ball', name: 'Ball sports' }] },
-    { name: 'Reizen', id: 'reizen', likes: 5, themes: [{ id: 'reizen_beach', name: 'Beach' }] }
+    { name: 'Nature', id: 'nature', likes: 5, themes: [ { id: 'nature_forest', name: 'Forest' }, { id: 'nature_water', name: 'Water' } ] },
+    { name: 'City', id: 'city', likes: 5, themes: [ { id: 'city_modern', name: 'Modern' }, { id: 'city_old', name: 'Old city' } ] },
+    { name: 'Sport', id: 'sport', likes: 5, themes: [ { id: 'sport_ball', name: 'Ball sports' } ] },
+    { name: 'Reizen', id: 'reizen', likes: 5, themes: [ { id: 'reizen_beach', name: 'Beach' } ] }
   ];
 
   const publicGroups = [
-    { name: 'Muziek', id: 'muziek', likes: 2, themes: [{ id: 'muziek_live', name: 'Live' }, { id: 'muziek_studio', name: 'Studio' }] },
-    { name: 'Design', id: 'design', likes: 2, themes: [{ id: 'design_graphic', name: 'Graphic' }] }
+    { name: 'Muziek', id: 'muziek', likes: 2, themes: [ { id: 'muziek_live', name: 'Live' }, { id: 'muziek_studio', name: 'Studio' } ] },
+    { name: 'Design', id: 'design', likes: 2, themes: [ { id: 'design_graphic', name: 'Graphic' } ] }
   ];
 
   // sidebar button 
-  function createSidebarBtn({ img, title, subtitle, dataAttrs = {} }) {
+  function createSidebarBtn({ img, title, subtitle, dataAttrs = {} }){
     const btn = document.createElement('a');
     btn.className = 'sidebar-btn';
     btn.innerHTML = `
@@ -61,10 +61,56 @@ document.addEventListener('DOMContentLoaded', () => {
     return btn;
   }
 
+  // Photo detail popup helpers
+  const photoDetailPopup = document.getElementById('photoDetailPopup');
+  const photoDetailImg = document.getElementById('photoDetailImg');
+  const photoDetailTitle = document.getElementById('photoDetailTitle');
+  const photoDetailLikes = document.getElementById('photoDetailLikes');
+  const photoDetailLikeBtn = document.getElementById('photoDetailLike');
+  const closePhotoDetailBtn = document.getElementById('closePhotoDetail');
+
+  function openPhotoDetail(themeId, index){
+    const photo = (photoSets[themeId] || [])[index];
+    if(!photo) return;
+    if(photoDetailImg) photoDetailImg.src = photo.url;
+    if(photoDetailImg) photoDetailImg.alt = `${themeId} photo`;
+    if(photoDetailTitle) photoDetailTitle.textContent = themeId.replace('_',' ').replace(/\b\w/g, l=>l.toUpperCase());
+    if(photoDetailLikes) photoDetailLikes.textContent = `${photo.likes || 0} Likes`;
+    if(photoDetailPopup) photoDetailPopup.style.display = 'flex';
+
+    if(photoDetailLikeBtn){
+      photoDetailLikeBtn.onclick = () => {
+        photoSets[themeId][index].likes = (photoSets[themeId][index].likes || 0) + 1;
+        if(photoDetailLikes) photoDetailLikes.textContent = `${photoSets[themeId][index].likes} Likes`;
+        const gallery = document.getElementById('gallery');
+        if(gallery){
+          const selector = `img.gallery-photo[data-theme="${themeId}"][data-index="${index}"]`;
+          const imgEl = gallery.querySelector(selector);
+          if(imgEl){
+            const likesEl = imgEl.parentElement.querySelector('.photo-likes');
+            if(likesEl) likesEl.textContent = `${photoSets[themeId][index].likes} Likes`;
+          }
+          const themeLikesEl = gallery.querySelector('.theme-likes');
+          if(themeLikesEl){
+            const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
+            themeLikesEl.textContent = `Total likes: ${newTotal}`;
+          }
+        }
+      };
+    }
+  }
+
+  function closePhotoDetail(){
+    if(photoDetailPopup) photoDetailPopup.style.display = 'none';
+  }
+
+  if(closePhotoDetailBtn) closePhotoDetailBtn.addEventListener('click', closePhotoDetail);
+
+
   // Render groups
-  function renderGroups(groups, containerId) {
+  function renderGroups(groups, containerId){
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if(!container) return;
     container.innerHTML = '';
     groups.forEach(g => {
       const firstTheme = g.themes && g.themes[0];
@@ -76,12 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Render themes voor de geselecteerde groep
-  function renderThemesForGroup(group) {
+  function renderThemesForGroup(group){
     const themesPanel = document.getElementById('themesPanel');
-    if (!themesPanel) return;
+    if(!themesPanel) return;
     themesPanel.innerHTML = '';
 
-    if (!group || !group.themes || group.themes.length === 0) {
+    if(!group || !group.themes || group.themes.length === 0){
       themesPanel.style.display = 'none';
       return;
     }
@@ -101,22 +147,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // laat foto's zien voor de geselecteerde thema's met like-knoppen
-  function showPhotosForTheme(themeId) {
+  function showPhotosForTheme(themeId){
     const container = document.getElementById('gallery');
-    if (!container) return;
+    if(!container) return;
     container.innerHTML = '';
     const titleArticle = document.createElement('article');
     titleArticle.className = 'gallery-title';
-    const prettyTitle = themeId ? themeId.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Gallery';
+    const prettyTitle = themeId ? themeId.replace('_',' ').replace(/\b\w/g, l=>l.toUpperCase()) : 'Gallery';
 
     // totaale likes
     const photos = photoSets[themeId] || [];
-    const totalLikes = photos.reduce((s, p) => s + (p.likes || 0), 0);
+    const totalLikes = photos.reduce((s,p) => s + (p.likes || 0), 0);
 
     titleArticle.innerHTML = `<h2>${prettyTitle}</h2><div class="theme-likes">Total likes: ${totalLikes}</div>`;
     container.appendChild(titleArticle);
 
-    if (photos.length === 0) {
+    if(photos.length === 0){
       const empty = document.createElement('article');
       empty.className = 'gallery-card';
       empty.innerHTML = '<p style="padding:16px;">No photos yet.</p>';
@@ -147,8 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
         photoSets[themeId][index].likes = (photoSets[themeId][index].likes || 0) + 1;
         likesDisplay.textContent = `${photoSets[themeId][index].likes} Likes`;
         const themeLikesEl = container.querySelector('.theme-likes');
-        const newTotal = photoSets[themeId].reduce((s, p) => s + (p.likes || 0), 0);
-        if (themeLikesEl) themeLikesEl.textContent = `Total likes: ${newTotal}`;
+        const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
+        if(themeLikesEl) themeLikesEl.textContent = `Total likes: ${newTotal}`;
       });
     });
   }
@@ -156,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderGroups(yourGroups, 'yourGroups');
   renderGroups(publicGroups, 'publicGroups');
 
-  function wireGroupClicks() {
+  function wireGroupClicks(){
     document.querySelectorAll('#yourGroups .sidebar-btn, #publicGroups .sidebar-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -219,52 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// Photo detail popup helpers
-const photoDetailPopup = document.getElementById('photoDetailPopup');
-const photoDetailImg = document.getElementById('photoDetailImg');
-const photoDetailTitle = document.getElementById('photoDetailTitle');
-const photoDetailLikes = document.getElementById('photoDetailLikes');
-const photoDetailLikeBtn = document.getElementById('photoDetailLike');
-const closePhotoDetailBtn = document.getElementById('closePhotoDetail');
-
-function openPhotoDetail(themeId, index) {
-  const photo = (photoSets[themeId] || [])[index];
-  if (!photo) return;
-  if (photoDetailImg) photoDetailImg.src = photo.url;
-  if (photoDetailImg) photoDetailImg.alt = `${themeId} photo`;
-  if (photoDetailTitle) photoDetailTitle.textContent = themeId.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  if (photoDetailLikes) photoDetailLikes.textContent = `${photo.likes || 0} Likes`;
-  if (photoDetailPopup) photoDetailPopup.style.display = 'flex';
-
-  if (photoDetailLikeBtn) {
-    photoDetailLikeBtn.onclick = () => {
-      photoSets[themeId][index].likes = (photoSets[themeId][index].likes || 0) + 1;
-      if (photoDetailLikes) photoDetailLikes.textContent = `${photoSets[themeId][index].likes} Likes`;
-      const gallery = document.getElementById('gallery');
-      if (gallery) {
-        const selector = `img.gallery-photo[data-theme="${themeId}"][data-index="${index}"]`;
-        const imgEl = gallery.querySelector(selector);
-        if (imgEl) {
-          const likesEl = imgEl.parentElement.querySelector('.photo-likes');
-          if (likesEl) likesEl.textContent = `${photoSets[themeId][index].likes} Likes`;
-        }
-        const themeLikesEl = gallery.querySelector('.theme-likes');
-        if (themeLikesEl) {
-          const newTotal = photoSets[themeId].reduce((s, p) => s + (p.likes || 0), 0);
-          themeLikesEl.textContent = `Total likes: ${newTotal}`;
-        }
-      }
-    };
-  }
-}
-
-function closePhotoDetail() {
-  if (photoDetailPopup) photoDetailPopup.style.display = 'none';
-}
-
-if (closePhotoDetailBtn) closePhotoDetailBtn.addEventListener('click', closePhotoDetail);
-
-
 // Profiel menu met Inloggen popup
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
@@ -281,18 +281,18 @@ if (profileBtn) {
 }
 
 function openPopup() {
-  if (popup) popup.style.display = "flex";
-  if (profileMenu) profileMenu.style.display = "none";
+  if(popup) popup.style.display = "flex";
+  if(profileMenu) profileMenu.style.display = "none";
 }
 
 function closePopup() {
-  if (popup) popup.style.display = "none";
+  if(popup) popup.style.display = "none";
 }
 
 function switchTab(type) {
   const isLogin = type === "login";
-  if (loginTab) loginTab.classList.toggle("active", isLogin);
-  if (signupTab) signupTab.classList.toggle("active", !isLogin);
-  if (loginForm) loginForm.classList.toggle("active", isLogin);
-  if (signupForm) signupForm.classList.toggle("active", !isLogin);
+  if(loginTab) loginTab.classList.toggle("active", isLogin);
+  if(signupTab) signupTab.classList.toggle("active", !isLogin);
+  if(loginForm) loginForm.classList.toggle("active", isLogin);
+  if(signupForm) signupForm.classList.toggle("active", !isLogin);
 }
