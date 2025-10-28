@@ -308,6 +308,12 @@ button {
   z-index: 200;
 }
 
+.photo-detail-popup {
+  opacity: 0;
+  transition: opacity 220ms ease-in-out;
+}
+.photo-detail-popup.open { opacity: 1; }
+
 .photo-detail-content {
   background: #fff;
   border-radius: 10px;
@@ -319,6 +325,9 @@ button {
   gap: 12px;
   align-items: flex-start;
 }
+
+.photo-detail-content { transform: translateY(8px); transition: transform 220ms ease-in-out; }
+.photo-detail-popup.open .photo-detail-content { transform: translateY(0); }
 
 .photo-detail-content img {
   max-width: 80%;
@@ -476,6 +485,9 @@ button:active {
   text-align: center;
 }
 
+.gallery-card { transition: transform 200ms ease, box-shadow 200ms ease; }
+.gallery-card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(16,40,70,0.16); }
+
 .gallery-card img {
   width: 100%;
   display: block;
@@ -484,4 +496,51 @@ button:active {
 .gallery-card .likes {
   padding: 10px;
   font-weight: bold;
+}
+
+/* mobile back button*/
+.mobile-back-btn {
+  display: inline-block;
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mobile-back-btn:hover {
+   opacity: 0.9; 
+  }
+
+.themes-sidebar .mobile-back-btn {
+  display: block;
+  width: 100%;
+  background: transparent;
+  color: #e5eaf3;
+  padding-left: 12px;
+  margin-bottom: 6px;
+}
+
+.gallery-back {
+  position: relative;
+  margin: 8px 12px;
+  background: #172F3B;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.gallery-back:hover {
+   opacity: 0.95;
+    transform: translateY(-2px); 
+  }
+
+@media (max-width: 768px) {
+  .layout-container { flex-direction: column; }
+  .sidebar-navigation { height: auto; width: 100%; }
+  .themes-sidebar { order: 2; }
+  .main-section { order: 3; padding: 12px; }
+  .gallery-section { grid-template-columns: 1fr; }
 }

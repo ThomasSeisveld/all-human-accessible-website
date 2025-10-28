@@ -33,12 +33,39 @@ document.addEventListener('DOMContentLoaded', () => {
     ]
   };
 
-  // Groups now contain multiple themes
+  const LS_KEY = 'snappthis_photo_likes_v1';
+  function loadPersistedLikes(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if(!raw) return;
+      const saved = JSON.parse(raw);
+      Object.keys(saved).forEach(themeId => {
+        if(photoSets[themeId]){
+          saved[themeId].forEach((likes, idx) => {
+            if(photoSets[themeId][idx]) photoSets[themeId][idx].likes = likes;
+          });
+        }
+      });
+    }catch(e){ console.warn('Failed to load likes', e); }
+  }
+
+  function persistLikes(){
+    try{
+      const out = {};
+      Object.keys(photoSets).forEach(themeId => {
+        out[themeId] = photoSets[themeId].map(p => p.likes || 0);
+      });
+      localStorage.setItem(LS_KEY, JSON.stringify(out));
+    }catch(e){ console.warn('Failed to persist likes', e); }
+  }
+
+  loadPersistedLikes();
+
   const yourGroups = [
-    { name: 'Nature', id: 'nature', likes: 5, themes: [ { id: 'nature_forest', name: 'Forest' }, { id: 'nature_water', name: 'Water' } ] },
-    { name: 'City', id: 'city', likes: 5, themes: [ { id: 'city_modern', name: 'Modern' }, { id: 'city_old', name: 'Old city' } ] },
-    { name: 'Sport', id: 'sport', likes: 5, themes: [ { id: 'sport_ball', name: 'Ball sports' } ] },
-    { name: 'Reizen', id: 'reizen', likes: 5, themes: [ { id: 'reizen_beach', name: 'Beach' } ] }
+    { name: 'Groep 1a', id: 'Groep 1a', likes: 5, themes: [ { id: 'nature_forest', name: 'Forest' }, { id: 'nature_water', name: 'Water' } ] },
+    { name: 'Groep 1b', id: 'Groep 1b', likes: 5, themes: [ { id: 'city_modern', name: 'Modern' }, { id: 'city_old', name: 'Old city' } ] },
+    { name: 'Groep 1c', id: 'Groep 1c', likes: 5, themes: [ { id: 'sport_ball', name: 'Ball sports' } ] },
+    { name: 'Groep 1d', id: 'Groep 1d', likes: 5, themes: [ { id: 'reizen_beach', name: 'Beach' } ] }
   ];
 
   const publicGroups = [
@@ -78,26 +105,77 @@ document.addEventListener('DOMContentLoaded', () => {
     if(photoDetailLikes) photoDetailLikes.textContent = `${photo.likes || 0} Likes`;
     if(photoDetailPopup) photoDetailPopup.style.display = 'flex';
 
+    const prevFocus = document.activeElement;
+
+    function updateLikeDisplays(){
+      
+      if(photoDetailLikes) photoDetailLikes.textContent = `${photoSets[themeId][index].likes} Likes`;
+      const gallery = document.getElementById('gallery');
+      if(gallery){
+        const selector = `img.gallery-photo[data-theme="${themeId}"][data-index="${index}"]`;
+        const imgEl = gallery.querySelector(selector);
+        if(imgEl){
+          const likesEl = imgEl.parentElement.querySelector('.photo-likes');
+          if(likesEl) likesEl.textContent = `${photoSets[themeId][index].likes} Likes`;
+        }
+        const themeLikesEl = gallery.querySelector('.theme-likes');
+        if(themeLikesEl){
+          const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
+          themeLikesEl.textContent = `Total likes: ${newTotal}`;
+        }
+      }
+    }
+
     if(photoDetailLikeBtn){
       photoDetailLikeBtn.onclick = () => {
         photoSets[themeId][index].likes = (photoSets[themeId][index].likes || 0) + 1;
-        if(photoDetailLikes) photoDetailLikes.textContent = `${photoSets[themeId][index].likes} Likes`;
-        const gallery = document.getElementById('gallery');
-        if(gallery){
-          const selector = `img.gallery-photo[data-theme="${themeId}"][data-index="${index}"]`;
-          const imgEl = gallery.querySelector(selector);
-          if(imgEl){
-            const likesEl = imgEl.parentElement.querySelector('.photo-likes');
-            if(likesEl) likesEl.textContent = `${photoSets[themeId][index].likes} Likes`;
-          }
-          const themeLikesEl = gallery.querySelector('.theme-likes');
-          if(themeLikesEl){
-            const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
-            themeLikesEl.textContent = `Total likes: ${newTotal}`;
-          }
-        }
+        updateLikeDisplays();
+        persistLikes();
       };
     }
+
+    if(photoDetailPopup){
+      photoDetailPopup.style.display = 'flex';
+      photoDetailPopup.classList.add('open');
+    }
+
+    function trapFocus(e){
+      const focusable = photoDetailPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(!focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length -1];
+      if(e.key === 'Tab'){
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault(); last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault(); first.focus();
+        }
+      }
+      if(e.key === 'Escape' || e.key === 'Esc'){
+        closePhotoDetail();
+      }
+    }
+
+    setTimeout(() => {
+      try{
+        const focusable = photoDetailPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if(focusable && focusable.length) focusable[0].focus();
+      }catch(e){}
+    }, 50);
+
+    document.addEventListener('keydown', trapFocus);
+    const removeTrap = () => document.removeEventListener('keydown', trapFocus);
+
+    const originalClose = closePhotoDetail;
+    closePhotoDetail = function(){
+      if(photoDetailPopup){
+        photoDetailPopup.style.display = 'none';
+        photoDetailPopup.classList.remove('open');
+      }
+      removeTrap();
+      if(prevFocus && prevFocus.focus) prevFocus.focus();
+      persistLikes();
+    };
   }
 
   function closePhotoDetail(){
@@ -105,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if(closePhotoDetailBtn) closePhotoDetailBtn.addEventListener('click', closePhotoDetail);
-
 
   // Render groups
   function renderGroups(groups, containerId){
@@ -132,6 +209,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     themesPanel.style.display = 'block';
+    //  mobile nieuwe functies:
+    if(window.innerWidth <= 768){
+      const yourGroupsEl = document.getElementById('yourGroups');
+      const publicGroupsEl = document.getElementById('publicGroups');
+      if(yourGroupsEl) yourGroupsEl.style.display = 'none';
+      if(publicGroupsEl) publicGroupsEl.style.display = 'none';
+      let back = themesPanel.querySelector('.mobile-back-btn');
+      if(!back){
+        back = document.createElement('button');
+        back.className = 'mobile-back-btn';
+        back.textContent = '← Back to groups';
+        back.addEventListener('click', () => {
+          if(yourGroupsEl) yourGroupsEl.style.display = 'block';
+          if(publicGroupsEl) publicGroupsEl.style.display = 'block';
+          themesPanel.style.display = 'none';
+        });
+        themesPanel.insertBefore(back, themesPanel.firstChild);
+      }
+    }
     group.themes.forEach(t => {
       const thumb = photoSets[t.id] && photoSets[t.id][0] ? photoSets[t.id][0].url : 'image.png';
       const btn = createSidebarBtn({ img: thumb, title: t.name, subtitle: '', dataAttrs: { themeId: t.id } });
@@ -151,11 +247,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('gallery');
     if(!container) return;
     container.innerHTML = '';
+   
+    const themesPanel = document.getElementById('themesPanel');
+    if(window.innerWidth <= 768 && themesPanel){
+      themesPanel.style.display = 'none';
+   
+      let topBack = document.getElementById('galleryMobileBack');
+      if(!topBack){
+        topBack = document.createElement('button');
+        topBack.id = 'galleryMobileBack';
+        topBack.className = 'mobile-back-btn gallery-back';
+        topBack.textContent = '← Back to themes';
+        topBack.addEventListener('click', () => {
+          
+          if(themesPanel) themesPanel.style.display = 'block';
+          const gallery = document.getElementById('gallery');
+          if(gallery){
+            gallery.innerHTML = '<article class="gallery-title"><h1>Gallery</h1><p>Click your group to see photos</p></article>';
+          }
+          // remove back button
+          const existing = document.getElementById('galleryMobileBack');
+          if(existing) existing.remove();
+        });
+        const mainSection = document.querySelector('.main-section');
+        if(mainSection) mainSection.insertBefore(topBack, mainSection.firstChild);
+      }
+    }
     const titleArticle = document.createElement('article');
     titleArticle.className = 'gallery-title';
     const prettyTitle = themeId ? themeId.replace('_',' ').replace(/\b\w/g, l=>l.toUpperCase()) : 'Gallery';
 
-    // totaale likes
+    // total likes
     const photos = photoSets[themeId] || [];
     const totalLikes = photos.reduce((s,p) => s + (p.likes || 0), 0);
 
@@ -195,6 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeLikesEl = container.querySelector('.theme-likes');
         const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
         if(themeLikesEl) themeLikesEl.textContent = `Total likes: ${newTotal}`;
+        // persist change
+        persistLikes();
       });
     });
   }
@@ -214,6 +338,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   wireGroupClicks();
+
+  // restore layout on resize > 768 and cleanup mobile back buttons
+  function restoreDesktopLayout(){
+    const yourGroupsEl = document.getElementById('yourGroups');
+    const publicGroupsEl = document.getElementById('publicGroups');
+    const themesPanel = document.getElementById('themesPanel');
+    const galleryBack = document.getElementById('galleryMobileBack');
+    if(window.innerWidth > 768){
+      if(yourGroupsEl) yourGroupsEl.style.display = 'block';
+      if(publicGroupsEl) publicGroupsEl.style.display = 'block';
+      if(themesPanel) themesPanel.style.display = 'block';
+      if(galleryBack) galleryBack.remove();
+      // remove mobile back button in themes panel if present
+      if(themesPanel){
+        const mobileBack = themesPanel.querySelector('.mobile-back-btn');
+        if(mobileBack) mobileBack.remove();
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    restoreDesktopLayout();
+  });
 
   // toggle groepen tabs
   const yourGroupsEl = document.getElementById('yourGroups');
