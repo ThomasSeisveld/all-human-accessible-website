@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Design', id: 'design', likes: 2, themes: [ { id: 'design_graphic', name: 'Graphic' } ] }
   ];
 
-  // Helper to create a sidebar button (shared style)
+  // sidebar button 
   function createSidebarBtn({ img, title, subtitle, dataAttrs = {} }){
     const btn = document.createElement('a');
     btn.className = 'sidebar-btn';
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   wireGroupClicks();
 
-  // Keep existing tab open/close behaviour (groups/public)
+  // toggle groepen tabs
   const yourGroupsEl = document.getElementById('yourGroups');
   const publicGroupsEl = document.getElementById('publicGroups');
   const themesPanel = document.getElementById('themesPanel');
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// Profiel menu & Inloggen/Registreren popup (keep existing behaviour)
+// Profiel menu met Inloggen popup
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
 const popup = document.getElementById("popup");
