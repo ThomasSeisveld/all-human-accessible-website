@@ -260,6 +260,25 @@ button {
   font-size: 1rem;
 }
 
+.like-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.like-btn:hover {
+   opacity: 0.9;
+  }
+.photo-likes { 
+  font-weight: 700; 
+}
+.theme-likes { 
+  font-size: 0.95rem; color: #666; margin-top: 6px; 
+}
+
 .btn:hover,
 button:hover {
   background: linear-gradient(90deg, #222 0%, #444 100%);
@@ -357,7 +376,7 @@ button:active {
 /* Gallery grid */
 .gallery-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 20px;
 }
 .gallery-title {

@@ -1,17 +1,36 @@
-// Sidebar groepen -> thema's -> fotos
+// Sidebar groepen -> thema's -> fotos functies
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Photo sets organized by theme keys
   const photoSets = {
-    nature_forest: ['https://picsum.photos/400/250?random=101','https://picsum.photos/400/250?random=102','https://picsum.photos/400/250?random=103'],
-    nature_water: ['https://picsum.photos/400/250?random=111','https://picsum.photos/400/250?random=112','https://picsum.photos/400/250?random=113'],
-    city_modern: ['https://picsum.photos/400/250?random=121','https://picsum.photos/400/250?random=122','https://picsum.photos/400/250?random=123'],
-    city_old: ['https://picsum.photos/400/250?random=131','https://picsum.photos/400/250?random=132','https://picsum.photos/400/250?random=133'],
-    sport_ball: ['https://picsum.photos/400/250?random=141','https://picsum.photos/400/250?random=142','https://picsum.photos/400/250?random=143'],
-    reizen_beach: ['https://picsum.photos/400/250?random=151','https://picsum.photos/400/250?random=152','https://picsum.photos/400/250?random=153'],
-    muziek_live: ['https://picsum.photos/400/250?random=161','https://picsum.photos/400/250?random=162','https://picsum.photos/400/250?random=163'],
-    design_graphic: ['https://picsum.photos/400/250?random=171','https://picsum.photos/400/250?random=172','https://picsum.photos/400/250?random=173']
+    nature_forest: [
+      { url: 'https://picsum.photos/400/250?random=101', likes: 3 },
+      { url: 'https://picsum.photos/400/250?random=102', likes: 1 },
+      { url: 'https://picsum.photos/400/250?random=103', likes: 2 }
+    ],
+    nature_water: [
+      { url: 'https://picsum.photos/400/250?random=111', likes: 0 },
+      { url: 'https://picsum.photos/400/250?random=112', likes: 4 }
+    ],
+    city_modern: [
+      { url: 'https://picsum.photos/400/250?random=121', likes: 5 },
+      { url: 'https://picsum.photos/400/250?random=122', likes: 2 }
+    ],
+    city_old: [
+      { url: 'https://picsum.photos/400/250?random=131', likes: 0 }
+    ],
+    sport_ball: [
+      { url: 'https://picsum.photos/400/250?random=141', likes: 1 }
+    ],
+    reizen_beach: [
+      { url: 'https://picsum.photos/400/250?random=151', likes: 3 }
+    ],
+    muziek_live: [
+      { url: 'https://picsum.photos/400/250?random=161', likes: 2 }
+    ],
+    design_graphic: [
+      { url: 'https://picsum.photos/400/250?random=171', likes: 0 }
+    ]
   };
 
   // Groups now contain multiple themes
@@ -49,8 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = '';
     groups.forEach(g => {
       const firstTheme = g.themes && g.themes[0];
-      const thumb = firstTheme && photoSets[firstTheme.id] ? photoSets[firstTheme.id][0] : 'image.png';
-      const btn = createSidebarBtn({ img: thumb, title: g.name, subtitle: `+${g.likes} Likes`, dataAttrs: { groupId: g.id } });
+      const thumb = firstTheme && photoSets[firstTheme.id] && photoSets[firstTheme.id][0] ? photoSets[firstTheme.id][0].url : 'image.png';
+      const subtitle = `${g.themes ? g.themes.length : 0} Themes`;
+      const btn = createSidebarBtn({ img: thumb, title: g.name, subtitle: subtitle, dataAttrs: { groupId: g.id } });
       container.appendChild(btn);
     });
   }
@@ -67,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     themesPanel.style.display = 'block';
     group.themes.forEach(t => {
-      const thumb = photoSets[t.id] ? photoSets[t.id][0] : 'image.png';
+      const thumb = photoSets[t.id] && photoSets[t.id][0] ? photoSets[t.id][0].url : 'image.png';
       const btn = createSidebarBtn({ img: thumb, title: t.name, subtitle: '', dataAttrs: { themeId: t.id } });
       themesPanel.appendChild(btn);
     });
@@ -80,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // laat foto's zien voor de geselecteerde thema's
+  // laat foto's zien voor de geselecteerde thema's met like-knoppen
   function showPhotosForTheme(themeId){
     const container = document.getElementById('gallery');
     if(!container) return;
@@ -88,18 +108,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleArticle = document.createElement('article');
     titleArticle.className = 'gallery-title';
     const prettyTitle = themeId ? themeId.replace('_',' ').replace(/\b\w/g, l=>l.toUpperCase()) : 'Gallery';
-    titleArticle.innerHTML = `<h2>${prettyTitle}</h2>`;
-    container.appendChild(titleArticle);
-    const photos = photoSets[themeId] || [];
-    photos.forEach(url => {
 
+    // totaale likes
+    const photos = photoSets[themeId] || [];
+    const totalLikes = photos.reduce((s,p) => s + (p.likes || 0), 0);
+
+    titleArticle.innerHTML = `<h2>${prettyTitle}</h2><div class="theme-likes">Total likes: ${totalLikes}</div>`;
+    container.appendChild(titleArticle);
+
+    if(photos.length === 0){
+      const empty = document.createElement('article');
+      empty.className = 'gallery-card';
+      empty.innerHTML = '<p style="padding:16px;">No photos yet.</p>';
+      container.appendChild(empty);
+      return;
+    }
+
+    photos.forEach((p, index) => {
       const card = document.createElement('article');
       card.className = 'gallery-card';
       card.innerHTML = `
-        <img src="${url}" alt="${prettyTitle} photo" class="gallery-photo">
-        <div class="likes">+2 Likes</div>
+        <img src="${p.url}" alt="${prettyTitle} photo" class="gallery-photo">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;">
+          <button class="like-btn" data-theme="${themeId}" data-index="${index}">♥ Like</button>
+          <div class="photo-likes">${p.likes} Likes</div>
+        </div>
       `;
       container.appendChild(card);
+
+      // like button
+      const likeBtn = card.querySelector('.like-btn');
+      const likesDisplay = card.querySelector('.photo-likes');
+      likeBtn.addEventListener('click', () => {
+        photoSets[themeId][index].likes = (photoSets[themeId][index].likes || 0) + 1;
+        likesDisplay.textContent = `${photoSets[themeId][index].likes} Likes`;
+        const themeLikesEl = container.querySelector('.theme-likes');
+        const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
+        if(themeLikesEl) themeLikesEl.textContent = `Total likes: ${newTotal}`;
+      });
     });
   }
 
