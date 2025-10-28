@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       container.appendChild(card);
 
-      // image click opens detail popup
+      // image detail popup
       const imgEl = card.querySelector('.gallery-photo');
       imgEl.addEventListener('click', () => openPhotoDetail(themeId, index));
 
@@ -317,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const themeLikesEl = container.querySelector('.theme-likes');
         const newTotal = photoSets[themeId].reduce((s, p) => s + (p.likes || 0), 0);
         if (themeLikesEl) themeLikesEl.textContent = `Total likes: ${newTotal}`;
-        // persist change
         persistLikes();
       });
     });
@@ -339,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   wireGroupClicks();
 
-  // restore layout on resize > 768 and cleanup mobile back buttons
   function restoreDesktopLayout() {
     const yourGroupsEl = document.getElementById('yourGroups');
     const publicGroupsEl = document.getElementById('publicGroups');
@@ -350,20 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (publicGroupsEl) publicGroupsEl.style.display = 'block';
       if (themesPanel) themesPanel.style.display = 'block';
       if (galleryBack) galleryBack.remove();
-      // remove mobile back button in themes panel if present
+      // remove mobile back button
       if (themesPanel) {
         const mobileBack = themesPanel.querySelector('.mobile-back-btn');
         if (mobileBack) mobileBack.remove();
       }
     } else {
-      // when switching to small screens ensure any open group tabs are closed
       try {
-        // closeAllTabs is a function declared below (hoisted)
         closeAllTabs();
       } catch (e) {
-        // ignore if not available for some reason
       }
-      // reset mobile nav groups button aria state if present
       const mobileGroupsBtn = document.getElementById('mobileNavGroupsBtn');
       if (mobileGroupsBtn) mobileGroupsBtn.setAttribute('aria-expanded', 'false');
     }
@@ -372,7 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', () => {
     restoreDesktopLayout();
   });
-  // run once on load to ensure initial layout matches viewport
   restoreDesktopLayout();
 
   // toggle groepen tabs
@@ -481,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const yourVisible = yourEl && yourEl.style.display === 'block';
       if (!yourVisible) {
-        // open your groups (reuse the existing button's handler if present)
+        // open your groups
         if (groupsBtn) groupsBtn.click();
         else {
           if (yourEl) yourEl.style.display = 'block';
