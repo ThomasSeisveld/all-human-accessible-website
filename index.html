@@ -91,6 +91,21 @@
       <button onclick="closePopup()" style="margin-top:10px;">Cancel</button>
     </div>
   </section>
+
+  <!-- foto detail popup -->
+  <div class="photo-detail-popup" id="photoDetailPopup" style="display:none;">
+    <div class="photo-detail-content" role="dialog" aria-modal="true">
+      <button class="close-photo-detail" id="closePhotoDetail" aria-label="Close photo details">×</button>
+      <img id="photoDetailImg" src="" alt="Photo detail">
+      <div class="photo-detail-info">
+        <h3 id="photoDetailTitle">Image</h3>
+        <div class="photo-detail-likes">
+          <button id="photoDetailLike" class="like-btn">♥ Like</button>
+          <span id="photoDetailLikes">0 Likes</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 <script src="data/script.js"></script>
 <script src="data/firebase.js"></script>

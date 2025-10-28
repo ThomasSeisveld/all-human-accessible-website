@@ -61,6 +61,55 @@ document.addEventListener('DOMContentLoaded', () => {
     return btn;
   }
 
+  // Photo detail popup helpers
+  const photoDetailPopup = document.getElementById('photoDetailPopup');
+  const photoDetailImg = document.getElementById('photoDetailImg');
+  const photoDetailTitle = document.getElementById('photoDetailTitle');
+  const photoDetailLikes = document.getElementById('photoDetailLikes');
+  const photoDetailLikeBtn = document.getElementById('photoDetailLike');
+  const closePhotoDetailBtn = document.getElementById('closePhotoDetail');
+
+  function openPhotoDetail(themeId, index){
+    const photo = (photoSets[themeId] || [])[index];
+    if(!photo) return;
+    if(photoDetailImg) photoDetailImg.src = photo.url;
+    if(photoDetailImg) photoDetailImg.alt = `${themeId} photo`;
+    if(photoDetailTitle) photoDetailTitle.textContent = themeId.replace('_',' ').replace(/\b\w/g, l=>l.toUpperCase());
+    if(photoDetailLikes) photoDetailLikes.textContent = `${photo.likes || 0} Likes`;
+    if(photoDetailPopup) photoDetailPopup.style.display = 'flex';
+
+    // wire like button for popup
+    if(photoDetailLikeBtn){
+      photoDetailLikeBtn.onclick = () => {
+        photoSets[themeId][index].likes = (photoSets[themeId][index].likes || 0) + 1;
+        if(photoDetailLikes) photoDetailLikes.textContent = `${photoSets[themeId][index].likes} Likes`;
+        // update gallery likes display
+        // find the corresponding gallery card and update its likes
+        const gallery = document.getElementById('gallery');
+        if(gallery){
+          const selector = `img.gallery-photo[data-theme="${themeId}"][data-index="${index}"]`;
+          const imgEl = gallery.querySelector(selector);
+          if(imgEl){
+            const likesEl = imgEl.parentElement.querySelector('.photo-likes');
+            if(likesEl) likesEl.textContent = `${photoSets[themeId][index].likes} Likes`;
+          }
+          const themeLikesEl = gallery.querySelector('.theme-likes');
+          if(themeLikesEl){
+            const newTotal = photoSets[themeId].reduce((s,p)=>s+(p.likes||0),0);
+            themeLikesEl.textContent = `Total likes: ${newTotal}`;
+          }
+        }
+      };
+    }
+  }
+
+  function closePhotoDetail(){
+    if(photoDetailPopup) photoDetailPopup.style.display = 'none';
+  }
+
+  if(closePhotoDetailBtn) closePhotoDetailBtn.addEventListener('click', closePhotoDetail);
+
+
   // Render groups
   function renderGroups(groups, containerId){
     const container = document.getElementById(containerId);
@@ -128,13 +177,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('article');
       card.className = 'gallery-card';
       card.innerHTML = `
-        <img src="${p.url}" alt="${prettyTitle} photo" class="gallery-photo">
+        <img src="${p.url}" alt="${prettyTitle} photo" class="gallery-photo" data-theme="${themeId}" data-index="${index}">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;">
           <button class="like-btn" data-theme="${themeId}" data-index="${index}">♥ Like</button>
           <div class="photo-likes">${p.likes} Likes</div>
         </div>
       `;
       container.appendChild(card);
+
+      // image click opens detail popup
+      const imgEl = card.querySelector('.gallery-photo');
+      imgEl.addEventListener('click', () => openPhotoDetail(themeId, index));
 
       // like button
       const likeBtn = card.querySelector('.like-btn');
