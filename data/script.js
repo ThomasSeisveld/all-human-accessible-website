@@ -355,12 +355,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const mobileBack = themesPanel.querySelector('.mobile-back-btn');
         if (mobileBack) mobileBack.remove();
       }
+    } else {
+      // when switching to small screens ensure any open group tabs are closed
+      try {
+        // closeAllTabs is a function declared below (hoisted)
+        closeAllTabs();
+      } catch (e) {
+        // ignore if not available for some reason
+      }
+      // reset mobile nav groups button aria state if present
+      const mobileGroupsBtn = document.getElementById('mobileNavGroupsBtn');
+      if (mobileGroupsBtn) mobileGroupsBtn.setAttribute('aria-expanded', 'false');
     }
   }
 
   window.addEventListener('resize', () => {
     restoreDesktopLayout();
   });
+  // run once on load to ensure initial layout matches viewport
+  restoreDesktopLayout();
 
   // toggle groepen tabs
   const yourGroupsEl = document.getElementById('yourGroups');
