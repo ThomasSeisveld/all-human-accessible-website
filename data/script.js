@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
       photoDetailPopup.style.display = 'flex';
       photoDetailPopup.classList.add('open');
     }
-
+// close met space en escape
     function trapFocus(e) {
       const focusable = photoDetailPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
       if (!focusable || focusable.length === 0) return;
@@ -209,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     themesPanel.style.display = 'block';
+
     //  mobile nieuwe functies:
     if (window.innerWidth <= 768) {
       const yourGroupsEl = document.getElementById('yourGroups');
@@ -338,22 +339,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   wireGroupClicks();
 
+  //opslaan desktop layout bij window resize (werkt niet goed)
   function restoreDesktopLayout() {
-    const yourGroupsEl = document.getElementById('yourGroups');
-    const publicGroupsEl = document.getElementById('publicGroups');
+    // const yourGroupsEl = document.getElementById('yourGroups');
+    // const publicGroupsEl = document.getElementById('publicGroups');
     const themesPanel = document.getElementById('themesPanel');
     const galleryBack = document.getElementById('galleryMobileBack');
     if (window.innerWidth > 768) {
-      if (yourGroupsEl) yourGroupsEl.style.display = 'block';
-      if (publicGroupsEl) publicGroupsEl.style.display = 'block';
-      if (themesPanel) themesPanel.style.display = 'block';
+      // if (yourGroupsEl) yourGroupsEl.style.display = 'none';
+      // if (publicGroupsEl) publicGroupsEl.style.display = 'block';
+      // if (themesPanel) themesPanel.style.display = 'none';
       if (galleryBack) galleryBack.remove();
       // remove mobile back button
       if (themesPanel) {
         const mobileBack = themesPanel.querySelector('.mobile-back-btn');
         if (mobileBack) mobileBack.remove();
       }
-    } else {
+    }
+     else {
       try {
         closeAllTabs();
       } catch (e) {
