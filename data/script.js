@@ -366,6 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // MARK: window resize event
+
   window.addEventListener('resize', () => {
     restoreDesktopLayout();
   });
